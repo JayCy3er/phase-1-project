@@ -3,7 +3,9 @@
 
 # Generated outputs
 backend/outputs/
-models/
+# Model weights directory (large binary files, not source code)
+# Use /models/ to only exclude the top-level models/ dir, not backend/models/
+/models/
 
 # Python
 __pycache__/

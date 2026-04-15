@@ -3,14 +3,14 @@ Celery task definitions for Studio3D pipeline.
 
 All tasks follow the pattern:
   1. Update job status → "running"
-  2. Call the model inference function
-  3. Save output to ./outputs/{job_id}/result.{ext}
-  4. Update job status → "done" with result_url
+  2. Resolve any /outputs/ URL to an absolute local path
+  3. Call the model inference function
+  4. Save output to ./outputs/{job_id}/result.{ext}
+  5. Update job status → "done" with result_url
 
 On any exception: status → "error" with message.
 """
 import os
-import json
 from pathlib import Path
 
 import redis
@@ -32,8 +32,9 @@ celery_app.conf.update(
 
 redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR    = Path(__file__).parent
 OUTPUTS_DIR = BASE_DIR / "outputs"
+MODEL_DIR   = os.environ.get("MODEL_DIR", str(BASE_DIR.parent / "models"))
 OUTPUTS_DIR.mkdir(exist_ok=True)
 
 
@@ -43,10 +44,10 @@ OUTPUTS_DIR.mkdir(exist_ok=True)
 def _set_status(job_id: str, status: str, progress: int = 0,
                 result_url: str = "", error: str = ""):
     redis_client.hset(f"job:{job_id}", mapping={
-        "status": status,
-        "progress": str(progress),
+        "status":     status,
+        "progress":   str(progress),
         "result_url": result_url,
-        "error": error,
+        "error":      error,
     })
 
 
@@ -54,6 +55,13 @@ def _job_output_dir(job_id: str) -> Path:
     d = OUTPUTS_DIR / job_id
     d.mkdir(parents=True, exist_ok=True)
     return d
+
+
+def _resolve_path(url_or_path: str) -> str:
+    """Convert a /outputs/{job_id}/result.ext URL to an absolute filesystem path."""
+    if url_or_path.startswith("/outputs/"):
+        return str(BASE_DIR / url_or_path.lstrip("/"))
+    return url_or_path
 
 
 # ---------------------------------------------------------------------------
@@ -67,17 +75,18 @@ def task_generate_image(self, job_id: str, prompt: str, negative_prompt: str,
 
         from models.image_gen import generate_image
         output_dir = _job_output_dir(job_id)
-        result_path = generate_image(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            width=width,
-            height=height,
-            output_path=str(output_dir / "result.png"),
-            tier=tier,
+        generate_image(
+            prompt          = prompt,
+            negative_prompt = negative_prompt,
+            width           = width,
+            height          = height,
+            output_path     = str(output_dir / "result.png"),
+            tier            = tier,
+            model_dir       = MODEL_DIR,
         )
 
-        result_url = f"/outputs/{job_id}/result.png"
-        _set_status(job_id, "done", progress=100, result_url=result_url)
+        _set_status(job_id, "done", progress=100,
+                    result_url=f"/outputs/{job_id}/result.png")
     except Exception as exc:
         _set_status(job_id, "error", error=str(exc))
         raise
@@ -93,13 +102,14 @@ def task_generate_3d(self, job_id: str, image_url: str):
 
         from models.threed_gen import generate_3d
         output_dir = _job_output_dir(job_id)
-        result_path = generate_3d(
-            image_url=image_url,
-            output_path=str(output_dir / "result.glb"),
+        generate_3d(
+            image_path  = _resolve_path(image_url),
+            output_path = str(output_dir / "result.glb"),
+            model_dir   = MODEL_DIR,
         )
 
-        result_url = f"/outputs/{job_id}/result.glb"
-        _set_status(job_id, "done", progress=100, result_url=result_url)
+        _set_status(job_id, "done", progress=100,
+                    result_url=f"/outputs/{job_id}/result.glb")
     except Exception as exc:
         _set_status(job_id, "error", error=str(exc))
         raise
@@ -115,15 +125,16 @@ def task_generate_video(self, job_id: str, image_url: str, duration: int, fps: i
 
         from models.video_gen import generate_video
         output_dir = _job_output_dir(job_id)
-        result_path = generate_video(
-            image_url=image_url,
-            duration=duration,
-            fps=fps,
-            output_path=str(output_dir / "result.mp4"),
+        generate_video(
+            image_path   = _resolve_path(image_url),
+            output_path  = str(output_dir / "result.mp4"),
+            duration_sec = duration,
+            fps          = fps,
+            model_dir    = MODEL_DIR,
         )
 
-        result_url = f"/outputs/{job_id}/result.mp4"
-        _set_status(job_id, "done", progress=100, result_url=result_url)
+        _set_status(job_id, "done", progress=100,
+                    result_url=f"/outputs/{job_id}/result.mp4")
     except Exception as exc:
         _set_status(job_id, "error", error=str(exc))
         raise
@@ -140,17 +151,17 @@ def task_generate_voice(self, job_id: str, text: str, ref_wav: str,
 
         from models.voice_gen import generate_voice
         output_dir = _job_output_dir(job_id)
-        result_path = generate_voice(
-            text=text,
-            ref_wav=ref_wav,
-            emotion=emotion,
-            speed=speed,
-            language=language,
-            output_path=str(output_dir / "result.wav"),
+        generate_voice(
+            text              = text,
+            voice_ref_path    = ref_wav,
+            output_path       = str(output_dir / "result.wav"),
+            emotion_intensity = emotion,
+            speed             = speed,
+            language          = language,
         )
 
-        result_url = f"/outputs/{job_id}/result.wav"
-        _set_status(job_id, "done", progress=100, result_url=result_url)
+        _set_status(job_id, "done", progress=100,
+                    result_url=f"/outputs/{job_id}/result.wav")
     except Exception as exc:
         _set_status(job_id, "error", error=str(exc))
         raise
@@ -166,14 +177,14 @@ def task_generate_final(self, job_id: str, video_url: str, audio_url: str):
 
         from models.merge import merge_video_audio
         output_dir = _job_output_dir(job_id)
-        result_path = merge_video_audio(
-            video_url=video_url,
-            audio_url=audio_url,
-            output_path=str(output_dir / "result.mp4"),
+        merge_video_audio(
+            video_path  = _resolve_path(video_url),
+            audio_path  = _resolve_path(audio_url),
+            output_path = str(output_dir / "result.mp4"),
         )
 
-        result_url = f"/outputs/{job_id}/result.mp4"
-        _set_status(job_id, "done", progress=100, result_url=result_url)
+        _set_status(job_id, "done", progress=100,
+                    result_url=f"/outputs/{job_id}/result.mp4")
     except Exception as exc:
         _set_status(job_id, "error", error=str(exc))
         raise

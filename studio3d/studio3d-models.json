@@ -1,0 +1,199 @@
+{
+  "manifest_version": 1,
+  "last_updated": "2026-04-15",
+  "tiers": {
+    "full": {
+      "models": [
+        {
+          "id": "image_gen",
+          "name": "FLUX.1 Dev",
+          "version": "1.0.0",
+          "hf_repo": "black-forest-labs/FLUX.1-dev",
+          "size_gb": 24,
+          "min_vram_gb": 16,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        },
+        {
+          "id": "threed_gen",
+          "name": "TRELLIS-2",
+          "version": "1.0.0",
+          "hf_repo": "microsoft/TRELLIS-image-large",
+          "size_gb": 8,
+          "min_vram_gb": 8,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        },
+        {
+          "id": "video_gen",
+          "name": "LTX-Video 2B",
+          "version": "1.0.0",
+          "hf_repo": "Lightricks/LTX-Video-0.9.7-distilled",
+          "size_gb": 6,
+          "min_vram_gb": 8,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        },
+        {
+          "id": "voice_gen",
+          "name": "Chatterbox TTS",
+          "version": "1.0.0",
+          "hf_repo": "resemble-ai/chatterbox",
+          "size_gb": 2,
+          "min_vram_gb": 0,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        }
+      ]
+    },
+    "lite": {
+      "models": [
+        {
+          "id": "image_gen",
+          "name": "SD 3.5 Medium",
+          "version": "1.0.0",
+          "hf_repo": "stabilityai/stable-diffusion-3.5-medium",
+          "size_gb": 5,
+          "min_vram_gb": 8,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        },
+        {
+          "id": "threed_gen",
+          "name": "TRELLIS-2",
+          "version": "1.0.0",
+          "hf_repo": "microsoft/TRELLIS-image-large",
+          "size_gb": 8,
+          "min_vram_gb": 8,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        },
+        {
+          "id": "video_gen",
+          "name": "LTX-Video 2B",
+          "version": "1.0.0",
+          "hf_repo": "Lightricks/LTX-Video-0.9.7-distilled",
+          "size_gb": 6,
+          "min_vram_gb": 8,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        },
+        {
+          "id": "voice_gen",
+          "name": "Chatterbox TTS",
+          "version": "1.0.0",
+          "hf_repo": "resemble-ai/chatterbox",
+          "size_gb": 2,
+          "min_vram_gb": 0,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        }
+      ]
+    },
+    "cloud": {
+      "models": [
+        {
+          "id": "voice_gen",
+          "name": "Chatterbox TTS",
+          "version": "1.0.0",
+          "hf_repo": "resemble-ai/chatterbox",
+          "size_gb": 2,
+          "min_vram_gb": 0,
+          "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY",
+          "changelog": "Initial release",
+          "required": true
+        }
+      ]
+    }
+  },
+  "voices": [
+    {
+      "id": "narrator",
+      "name": "Narrator v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/narrator.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    },
+    {
+      "id": "sarah",
+      "name": "Sarah v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/sarah.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    },
+    {
+      "id": "british_male",
+      "name": "British Male v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/british_male.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    },
+    {
+      "id": "storyteller",
+      "name": "Storyteller v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/storyteller.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    },
+    {
+      "id": "news_anchor",
+      "name": "News Anchor v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/news_anchor.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    },
+    {
+      "id": "young_male",
+      "name": "Young Male v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/young_male.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    },
+    {
+      "id": "elder_female",
+      "name": "Elder Female v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/elder_female.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    },
+    {
+      "id": "whisperer",
+      "name": "Whisperer v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/whisperer.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    },
+    {
+      "id": "villain",
+      "name": "Villain v1",
+      "version": "1.0.0",
+      "download_url": "https://yourdomain.com/voices/villain.wav",
+      "size_mb": 5,
+      "sha256": "PLACEHOLDER_RUN_GENERATE_MANIFEST_PY"
+    }
+  ],
+  "app_version": {
+    "latest": "1.0.0",
+    "minimum_supported": "1.0.0",
+    "download_url_windows": "https://yourdomain.com/releases/Studio3D-1.0.0-setup.exe",
+    "download_url_mac": "https://yourdomain.com/releases/Studio3D-1.0.0.dmg",
+    "download_url_linux": "https://yourdomain.com/releases/Studio3D-1.0.0.AppImage",
+    "changelog_url": "https://yourdomain.com/changelog"
+  }
+}

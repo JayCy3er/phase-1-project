@@ -1,0 +1,9 @@
+{
+  "tier": "full",
+  "installed_models": {
+    "image_gen": {"name": "FLUX.1 Dev", "version": "1.0.0"},
+    "threed_gen": {"name": "TRELLIS-2", "version": "1.0.0"},
+    "video_gen":  {"name": "LTX-Video 2B", "version": "1.0.0"},
+    "voice_gen":  {"name": "Chatterbox TTS", "version": "1.0.0"}
+  }
+}

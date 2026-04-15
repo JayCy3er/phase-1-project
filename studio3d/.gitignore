@@ -1,0 +1,23 @@
+# Environment
+.env
+
+# Generated outputs
+backend/outputs/
+models/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+frontend/.next/
+frontend/out/
+
+# Tauri / Rust
+installer/src-tauri/target/
+
+# OS
+.DS_Store
+Thumbs.db

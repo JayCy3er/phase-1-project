@@ -1,0 +1,11 @@
+[
+  {"id": "narrator",     "name": "Narrator",     "style": "Deep calm male",       "lang": "en"},
+  {"id": "sarah",        "name": "Sarah",         "style": "Warm friendly female", "lang": "en"},
+  {"id": "british_male", "name": "British Male",  "style": "RP accent",            "lang": "en"},
+  {"id": "storyteller",  "name": "Storyteller",   "style": "Gravelly dramatic",    "lang": "en"},
+  {"id": "news_anchor",  "name": "News Anchor",   "style": "Clear neutral female", "lang": "en"},
+  {"id": "young_male",   "name": "Young Male",    "style": "Energetic casual",     "lang": "en"},
+  {"id": "elder_female", "name": "Elder Female",  "style": "Warm mature",          "lang": "en"},
+  {"id": "whisperer",    "name": "Whisperer",     "style": "Soft intimate",        "lang": "en"},
+  {"id": "villain",      "name": "Villain",       "style": "Low menacing male",    "lang": "en"}
+]

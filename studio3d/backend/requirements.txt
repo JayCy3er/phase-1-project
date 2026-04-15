@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+celery[redis]
+redis
+python-multipart
+diffusers>=0.28.0
+transformers>=4.40.0
+accelerate
+torchvision
+torchaudio
+chatterbox-tts
+huggingface-hub
+pillow
+numpy
+httpx

@@ -65,28 +65,34 @@ if [ -z "$HF_TOKEN" ] || [ "$HF_TOKEN" = "your_huggingface_token_here" ]; then
   echo "    Get your token at: https://huggingface.co/settings/tokens"
 fi
 
+# Use 'hf' (new) with fallback to 'huggingface-cli' (old)
+HF_CMD="hf"
+if ! command -v hf &> /dev/null; then
+  HF_CMD="huggingface-cli"
+fi
+
+HF_DOWNLOAD() {
+  if [ "$HF_CMD" = "hf" ]; then
+    hf download "$1" --local-dir "$2" ${HF_TOKEN:+--token "$HF_TOKEN"}
+  else
+    huggingface-cli download "$1" --local-dir "$2" ${HF_TOKEN:+--token "$HF_TOKEN"}
+  fi
+}
+
 if [ "$TIER" = "full" ]; then
   echo "Downloading FLUX.1 Dev (~24GB)…"
-  huggingface-cli download black-forest-labs/FLUX.1-dev \
-    --local-dir ./models/flux \
-    --token "${HF_TOKEN:-}"
+  HF_DOWNLOAD black-forest-labs/FLUX.1-dev ./models/flux
 elif [ "$TIER" = "lite" ]; then
   echo "Downloading SD 3.5 Medium (~5GB)…"
-  huggingface-cli download stabilityai/stable-diffusion-3.5-medium \
-    --local-dir ./models/sd35 \
-    --token "${HF_TOKEN:-}"
+  HF_DOWNLOAD stabilityai/stable-diffusion-3.5-medium ./models/sd35
 fi
 
 if [ "$TIER" != "cloud" ]; then
   echo "Downloading TRELLIS-2 (~8GB)…"
-  huggingface-cli download microsoft/TRELLIS-image-large \
-    --local-dir ./models/trellis \
-    --token "${HF_TOKEN:-}"
+  HF_DOWNLOAD microsoft/TRELLIS-image-large ./models/trellis
 
   echo "Downloading LTX-Video 2B (~6GB)…"
-  huggingface-cli download Lightricks/LTX-Video-0.9.7-distilled \
-    --local-dir ./models/ltx \
-    --token "${HF_TOKEN:-}"
+  HF_DOWNLOAD Lightricks/LTX-Video-0.9.7-distilled ./models/ltx
 
   echo "Chatterbox TTS downloads automatically on first voice generation."
 fi

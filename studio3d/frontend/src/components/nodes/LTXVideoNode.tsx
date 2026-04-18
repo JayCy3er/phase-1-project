@@ -16,7 +16,7 @@ export default function LTXVideoNode({ id, data }: Props) {
   const resultUrl = state?.resultUrl ? outputUrl(state.resultUrl) : undefined;
 
   return (
-    <NodeBase accentColor="#22c55e" label="LTX Video" state={state}>
+    <NodeBase id={id} accentColor="#22c55e" label="LTX Video" state={state}>
       <Handle type="target" position={Position.Left} id="image"
         style={{ background: '#8b5cf6', width: 10, height: 10 }} />
 

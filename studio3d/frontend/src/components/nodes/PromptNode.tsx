@@ -21,7 +21,7 @@ export default function PromptNode({ id, data }: Props) {
   );
 
   return (
-    <NodeBase accentColor="#3b82f6" label="Prompt" state={data._state}>
+    <NodeBase id={id} accentColor="#3b82f6" label="Prompt" state={data._state}>
       <textarea
         value={text}
         onChange={onChange}

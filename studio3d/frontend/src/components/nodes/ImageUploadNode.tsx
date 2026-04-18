@@ -51,7 +51,7 @@ export default function ImageUploadNode({ id, data }: Props) {
   );
 
   return (
-    <NodeBase accentColor="#6b7280" label="Image Upload" state={data._state}>
+    <NodeBase id={id} accentColor="#6b7280" label="Image Upload" state={data._state}>
       <div
         className="border-2 border-dashed border-white/20 rounded-lg p-3 text-center cursor-pointer hover:border-white/40 transition-colors"
         onDrop={onDrop}

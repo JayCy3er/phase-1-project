@@ -16,7 +16,7 @@ export default function TrellisNode({ id, data }: Props) {
   const resultUrl = state?.resultUrl ? outputUrl(state.resultUrl) : undefined;
 
   return (
-    <NodeBase accentColor="#f97316" label="TRELLIS 3D" state={state}>
+    <NodeBase id={id} accentColor="#f97316" label="TRELLIS 3D" state={state}>
       <Handle type="target" position={Position.Left} id="image"
         style={{ background: '#8b5cf6', width: 10, height: 10 }} />
 

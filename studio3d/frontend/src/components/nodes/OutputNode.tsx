@@ -31,7 +31,7 @@ export default function OutputNode({ id, data }: Props) {
   };
 
   return (
-    <NodeBase accentColor="#14b8a6" label={data.label ?? 'Output'} state={state}>
+    <NodeBase id={id} accentColor="#14b8a6" label={data.label ?? 'Output'} state={state}>
       <Handle type="target" position={Position.Left} id="input"
         style={{ background: '#14b8a6', width: 10, height: 10 }} />
 

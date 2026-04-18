@@ -55,7 +55,7 @@ export default function ChatterboxNode({ id, data }: Props) {
   const selectedVoice = voices.find(v => v.id === (data.voiceId ?? 'narrator'));
 
   return (
-    <NodeBase accentColor="#ec4899" label="Chatterbox Voice" state={state}>
+    <NodeBase id={id} accentColor="#ec4899" label="Chatterbox Voice" state={state}>
       <Handle type="target" position={Position.Left} id="text"
         style={{ background: '#3b82f6', width: 10, height: 10 }} />
 

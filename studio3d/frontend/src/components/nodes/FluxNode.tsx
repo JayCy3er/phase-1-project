@@ -25,7 +25,7 @@ export default function FluxNode({ id, data }: Props) {
   const resultUrl = state?.resultUrl ? outputUrl(state.resultUrl) : undefined;
 
   return (
-    <NodeBase accentColor="#8b5cf6" label="FLUX Image Gen" state={state}>
+    <NodeBase id={id} accentColor="#8b5cf6" label="FLUX Image Gen" state={state}>
       <Handle type="target" position={Position.Left} id="text"
         style={{ background: '#3b82f6', width: 10, height: 10 }} />
 

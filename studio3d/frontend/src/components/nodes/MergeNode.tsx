@@ -15,7 +15,7 @@ export default function MergeNode({ id, data }: Props) {
   const resultUrl = state?.resultUrl ? outputUrl(state.resultUrl) : undefined;
 
   return (
-    <NodeBase accentColor="#eab308" label="FFmpeg Merge" state={state}>
+    <NodeBase id={id} accentColor="#eab308" label="FFmpeg Merge" state={state}>
       {/* Two input handles */}
       <Handle type="target" position={Position.Left} id="video"
         style={{ background: '#22c55e', width: 10, height: 10, top: '35%' }} />

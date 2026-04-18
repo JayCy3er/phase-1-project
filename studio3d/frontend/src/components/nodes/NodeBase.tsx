@@ -1,15 +1,19 @@
 'use client';
 import React from 'react';
+import { useReactFlow } from '@xyflow/react';
 import type { NodeState } from '@/lib/workflow';
 
 interface NodeBaseProps {
+  id: string;
   accentColor: string;
   label: string;
   state?: NodeState;
   children: React.ReactNode;
 }
 
-export function NodeBase({ accentColor, label, state, children }: NodeBaseProps) {
+export function NodeBase({ id, accentColor, label, state, children }: NodeBaseProps) {
+  const { deleteElements } = useReactFlow();
+
   return (
     <div className="studio-node" style={{ minWidth: 220 }}>
       <div className="studio-node-accent" style={{ background: accentColor }} />
@@ -19,7 +23,16 @@ export function NodeBase({ accentColor, label, state, children }: NodeBaseProps)
           <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">
             {label}
           </span>
-          <StatusDot state={state} />
+          <div className="flex items-center gap-1.5">
+            <StatusDot state={state} />
+            <button
+              onClick={() => deleteElements({ nodes: [{ id }] })}
+              className="w-4 h-4 flex items-center justify-center rounded text-white/30 hover:text-red-400 hover:bg-white/10 transition-colors"
+              title="Delete node"
+            >
+              ✕
+            </button>
+          </div>
         </div>
         {children}
       </div>

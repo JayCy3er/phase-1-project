@@ -34,12 +34,14 @@ def _get_pipe(tier: str, model_dir: str):
     if tier == "full":
         model_path = os.path.join(model_dir, "flux")
         print(f"[ImageGen] Loading FLUX.1 Dev from {model_path} on {device}...")
+        # bfloat16 is ~23GB on RX 7900 XTX — fits in 24GB VRAM without CPU offload.
+        # CPU offload would cause WSL OOM; load directly to GPU instead.
         pipe = FluxPipeline.from_pretrained(
             model_path,
-            torch_dtype=dtype,
+            torch_dtype=torch.bfloat16,
             local_files_only=True,
         )
-        pipe.enable_model_cpu_offload()   # Handles VRAM overflow gracefully
+        pipe = pipe.to(device)
     else:
         # Lite tier — SD 3.5 Medium
         from diffusers import StableDiffusion3Pipeline

@@ -11,7 +11,11 @@ All tasks follow the pattern:
 On any exception: status → "error" with message.
 """
 import os
+import sys
 from pathlib import Path
+
+# Ensure backend/ is on the path so `from models.x import ...` always works
+sys.path.insert(0, str(Path(__file__).parent))
 
 import redis
 from celery import Celery

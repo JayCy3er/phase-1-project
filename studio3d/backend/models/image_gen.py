@@ -8,7 +8,9 @@ ROCm note: always run with HSA_OVERRIDE_GFX_VERSION=11.0.0 in the environment.
 import os
 import torch
 from pathlib import Path
-from diffusers import FluxPipeline, StableDiffusion3Pipeline
+from diffusers import FluxPipeline
+# StableDiffusion3Pipeline imported lazily inside _get_pipe to avoid
+# a broken FLAX_WEIGHTS_NAME import in older diffusers+transformers combos.
 
 # ---------------------------------------------------------------------------
 # Lazy loader — model stays in memory after first call
@@ -40,6 +42,7 @@ def _get_pipe(tier: str, model_dir: str):
         pipe.enable_model_cpu_offload()   # Handles VRAM overflow gracefully
     else:
         # Lite tier — SD 3.5 Medium
+        from diffusers import StableDiffusion3Pipeline
         model_path = os.path.join(model_dir, "sd35")
         print(f"[ImageGen] Loading SD 3.5 Medium from {model_path} on {device}...")
         pipe = StableDiffusion3Pipeline.from_pretrained(

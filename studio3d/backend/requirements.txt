@@ -8,8 +8,8 @@ transformers>=4.40.0
 accelerate
 torchvision
 torchaudio
+numpy>=1.26.4,<2.0
 chatterbox-tts
 huggingface-hub
 pillow
-numpy
 httpx

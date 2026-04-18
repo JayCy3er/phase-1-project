@@ -119,9 +119,15 @@ def download_and_prep():
 
     try:
         from datasets import load_dataset
+        import datasets as _ds_mod
+        _ds_version = tuple(int(x) for x in _ds_mod.__version__.split(".")[:2])
+        if _ds_version >= (4, 0):
+            print("ERROR: datasets>=4.0 dropped loading-script support.")
+            print("  Fix: pip install 'datasets>=3.0,<4.0'")
+            return
     except ImportError:
         print("ERROR: Install required packages first:")
-        print("  pip install datasets soundfile numpy librosa")
+        print("  pip install 'datasets>=3.0,<4.0' soundfile numpy librosa")
         return
 
     # Streaming mode — avoids downloading the full 11GB up front

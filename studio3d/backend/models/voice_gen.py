@@ -3,25 +3,31 @@ Voice synthesis via Chatterbox TTS (always local, even in cloud mode).
 
 Lazy-loads on first call and keeps the model in memory.
 
-ROCm note: always run with HSA_OVERRIDE_GFX_VERSION=11.0.0 in the environment.
-
-# IMPORTANT: Replace placeholder .wav files in voices/presets/ with real
-# 10-second voice reference clips sourced from VCTK corpus
-# (https://datashare.ed.ac.uk/handle/10283/2950) or LibriVox
-# (https://librivox.org) — both are public domain / open license.
-# Run:  python scripts/download_vctk_voices.py
+Windows/DirectML: Chatterbox does not natively support the DirectML backend,
+so we pass "cpu" when DirectML is the system default. Voice models are small
+enough that CPU inference is acceptable (~10s for a 5s clip).
 """
 import os
 import torch
 import torchaudio as ta
 from pathlib import Path
 
+from ._device import device_str, is_directml
+
 _model_cache: dict = {}
 
 
-def _get_device():
-    if torch.cuda.is_available():
-        return "cuda"
+def _chatterbox_device() -> str:
+    """
+    Return device string for Chatterbox.
+    Falls back to CPU on DirectML — chatterbox's CUDA kernels won't run on DX12.
+    """
+    if is_directml():
+        return "cpu"
+    d = device_str()
+    # Chatterbox only understands "cuda", "cpu", "mps"
+    if d.startswith("cuda") or d in ("cpu", "mps"):
+        return d
     return "cpu"
 
 
@@ -34,7 +40,7 @@ def _get_model(engine: str = "turbo"):
     if cache_key in _model_cache:
         return _model_cache[cache_key]
 
-    device = _get_device()
+    device = _chatterbox_device()
     print(f"[Chatterbox] Loading {engine} model on {device}...")
 
     if engine == "turbo":
@@ -66,10 +72,9 @@ def generate_voice(
 
     Args:
         text:              Text to speak. Turbo supports [laugh], [cough], [chuckle].
-        voice_ref_path:    Path to 5–10s WAV reference for voice cloning.
-                           If None, uses Chatterbox default voice.
+        voice_ref_path:    Path to 5-10s WAV reference for voice cloning.
         output_path:       Where to save the output WAV.
-        emotion_intensity: 0.0 = neutral, 1.0 = very dramatic. Maps to exaggeration param.
+        emotion_intensity: 0.0 = neutral, 1.0 = very dramatic.
         speed:             Speech rate multiplier (0.5 = slow, 1.5 = fast).
         language:          Language code for multilingual engine (e.g. "fr", "zh").
         engine:            "turbo" | "original" | "multilingual"
@@ -79,22 +84,20 @@ def generate_voice(
     """
     os.environ.setdefault("HSA_OVERRIDE_GFX_VERSION", "11.0.0")
 
-    # Use multilingual engine if non-English language requested
     if language != "en" and engine != "multilingual":
         engine = "multilingual"
 
     model = _get_model(engine)
 
-    print(f"[Chatterbox] Generating speech  "
-          f"engine={engine}  lang={language}  "
+    print(f"[Chatterbox] Generating — engine={engine}  lang={language}  "
           f"emotion={emotion_intensity:.2f}  speed={speed:.2f}")
     if voice_ref_path:
         print(f"[Chatterbox] Voice cloning from: {voice_ref_path}")
 
-    # Map emotion_intensity (0–1) → Chatterbox exaggeration param (0.25–2.0)
+    # Map emotion_intensity (0–1) → exaggeration param (0.25–2.0)
     exaggeration = 0.25 + emotion_intensity * 1.75
 
-    # Map speed (0.5–1.5) → cfg_weight (0.3–0.7): higher cfg = slower, more precise
+    # Map speed (0.5–1.5) → cfg_weight (0.3–0.7)
     cfg_weight = 0.7 - (speed - 0.5) * 0.2
 
     with torch.inference_mode():
@@ -116,6 +119,5 @@ def generate_voice(
 
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     ta.save(output_path, wav, model.sr)
-    print(f"[Chatterbox] Saved WAV to {output_path}  "
-          f"({wav.shape[-1] / model.sr:.1f}s)")
+    print(f"[Chatterbox] Saved WAV to {output_path}  ({wav.shape[-1] / model.sr:.1f}s)")
     return output_path

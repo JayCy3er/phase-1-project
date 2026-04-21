@@ -5,27 +5,48 @@ echo   Studio3D - Starting All Services
 echo ===================================
 echo.
 
-:: Redis (no terminal needed — runs as daemon)
+:: Activate venv
+call .venv\Scripts\activate.bat 2>nul
+if errorlevel 1 (
+    echo [ERROR] Virtual environment not found.
+    echo         Run setup_windows.bat first.
+    pause & exit /b 1
+)
+
+:: [1/4] Redis
 echo [1/4] Starting Redis...
-wsl -u root service redis-server start
-echo       Done.
+where redis-server >nul 2>&1
+if not errorlevel 1 (
+    start /B redis-server
+    echo       Redis started.
+) else (
+    :: Try the tporadowski Windows build location
+    if exist "C:\Program Files\Redis\redis-server.exe" (
+        start /B "C:\Program Files\Redis\redis-server.exe"
+        echo       Redis started from Program Files.
+    ) else (
+        echo [WARN] redis-server not found in PATH.
+        echo        Install with: winget install Redis.Redis
+        echo        Continuing anyway — if Redis is already running as a service this is fine.
+    )
+)
 
-:: Backend
-echo [2/4] Starting Backend ^(uvicorn^)...
-start "Studio3D - Backend" wsl bash -ic "cd ~/phase-1-project/studio3d/backend && source ../.venv/bin/activate && uvicorn main:app --port 8000"
+:: [2/4] Backend (FastAPI / uvicorn)
+echo [2/4] Starting Backend (uvicorn)...
+start "Studio3D - Backend" cmd /k "cd /d %~dp0backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
-:: Celery
+:: [3/4] Celery worker
 echo [3/4] Starting Celery worker...
-start "Studio3D - Celery" wsl bash -ic "cd ~/phase-1-project/studio3d/backend && source ../.venv/bin/activate && celery -A tasks worker --loglevel=info"
+start "Studio3D - Celery" cmd /k "cd /d %~dp0backend && celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"
 
-:: Frontend
-echo [4/4] Starting Frontend ^(Next.js^)...
-start "Studio3D - Frontend" wsl bash -ic "cd ~/phase-1-project/studio3d/frontend && npm run dev"
+:: [4/4] Frontend (Next.js)
+echo [4/4] Starting Frontend (Next.js)...
+start "Studio3D - Frontend" cmd /k "cd /d %~dp0frontend && npm run dev"
 
-:: Open browser after services warm up
+:: Wait then open browser
 echo.
-echo Waiting 12 seconds for services to start...
-timeout /t 12 /nobreak > nul
+echo Waiting 15 seconds for services to start...
+timeout /t 15 /nobreak > nul
 start http://localhost:3000
 
 echo.

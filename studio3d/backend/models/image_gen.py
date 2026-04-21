@@ -3,50 +3,39 @@ Image generation via FLUX.1 Dev (full tier) or SD 3.5 Medium (lite tier).
 
 Lazy-loads on first call and keeps the pipeline in memory.
 
-ROCm note: always run with HSA_OVERRIDE_GFX_VERSION=11.0.0 in the environment.
+Windows/DirectML note: bfloat16 is not supported — float16 is used instead.
+ROCm (Linux) note: run with HSA_OVERRIDE_GFX_VERSION=11.0.0 in the environment.
 """
 import os
 import torch
 from pathlib import Path
 from diffusers import FluxPipeline
-# StableDiffusion3Pipeline imported lazily inside _get_pipe to avoid
-# a broken FLAX_WEIGHTS_NAME import in older diffusers+transformers combos.
 
-# ---------------------------------------------------------------------------
-# Lazy loader — model stays in memory after first call
-# ---------------------------------------------------------------------------
+from ._device import get_device, is_directml, safe_dtype
+
 _model_cache: dict = {}
 
-def _get_device():
-    """Detect best available device including ROCm."""
-    if torch.cuda.is_available():
-        return "cuda"
-    # ROCm surfaces as cuda in PyTorch — covered above
-    return "cpu"
 
 def _get_pipe(tier: str, model_dir: str):
     if "image" in _model_cache:
         return _model_cache["image"]
 
-    device = _get_device()
-    dtype  = torch.float16 if device != "cpu" else torch.float32
+    device = get_device()
+    dtype  = safe_dtype(torch.bfloat16)   # bfloat16 on CUDA, float16 on DirectML
 
     if tier == "full":
         model_path = os.path.join(model_dir, "flux")
-        print(f"[ImageGen] Loading FLUX.1 Dev from {model_path} on {device}...")
-        # bfloat16 is ~23GB on RX 7900 XTX — fits in 24GB VRAM without CPU offload.
-        # CPU offload would cause WSL OOM; load directly to GPU instead.
+        print(f"[ImageGen] Loading FLUX.1 Dev from {model_path} on {device} ({dtype})...")
         pipe = FluxPipeline.from_pretrained(
             model_path,
-            torch_dtype=torch.bfloat16,
+            torch_dtype=dtype,
             local_files_only=True,
         )
         pipe = pipe.to(device)
     else:
-        # Lite tier — SD 3.5 Medium
         from diffusers import StableDiffusion3Pipeline
         model_path = os.path.join(model_dir, "sd35")
-        print(f"[ImageGen] Loading SD 3.5 Medium from {model_path} on {device}...")
+        print(f"[ImageGen] Loading SD 3.5 Medium from {model_path} on {device} ({dtype})...")
         pipe = StableDiffusion3Pipeline.from_pretrained(
             model_path,
             torch_dtype=dtype,
@@ -70,16 +59,12 @@ def generate_image(
     tier:            str   = "full",
     model_dir:       str   = "./models",
 ) -> str:
-    """
-    Run image generation inference.
-    Returns the path to the saved PNG.
-    """
+    """Run image generation inference. Returns path to saved PNG."""
     os.environ.setdefault("HSA_OVERRIDE_GFX_VERSION", "11.0.0")
 
     pipe = _get_pipe(tier, model_dir)
 
-    print(f"[ImageGen] Generating: '{prompt[:60]}...' "
-          f"({width}x{height}, {num_steps} steps)")
+    print(f"[ImageGen] Generating: '{prompt[:60]}...' ({width}x{height}, {num_steps} steps)")
 
     with torch.inference_mode():
         if tier == "full":

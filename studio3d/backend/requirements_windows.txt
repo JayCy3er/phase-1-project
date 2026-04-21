@@ -1,0 +1,41 @@
+# ============================================================
+# Studio3D — Windows requirements (torch-directml + AMD GPU)
+# ============================================================
+# Install order matters — use setup_windows.bat, not pip install -r directly.
+
+# --- PyTorch stack (must match torch-directml 0.2.5 pinning) ---
+torch==2.4.1
+torchaudio==2.4.1
+torchvision==0.19.1
+
+# --- AMD GPU on Windows via DirectX 12 ---
+torch-directml==0.2.5.dev240926
+
+# --- Diffusers ecosystem ---
+diffusers>=0.30.0
+transformers>=4.40.0
+accelerate>=0.30.0
+huggingface_hub>=0.23.0
+sentencepiece
+protobuf
+
+# --- API stack ---
+fastapi
+uvicorn[standard]
+celery[redis]
+redis
+python-multipart
+pydantic
+
+# --- Inference utilities ---
+Pillow>=10.0.0
+numpy>=1.26.4,<2.0
+imageio[ffmpeg]
+opencv-python
+httpx
+
+# --- Audio ---
+# chatterbox-tts is installed separately with --no-deps in setup_windows.bat
+# because it pins torch==2.6.0 which conflicts with torch-directml
+resemble-perth
+soundfile

@@ -54,17 +54,19 @@ app.mount("/outputs", StaticFiles(directory=str(OUTPUTS_DIR)), name="outputs")
 # ---------------------------------------------------------------------------
 def _enqueue(task_fn, *args) -> str:
     job_id = str(uuid.uuid4())
-    redis_client.hset(f"job:{job_id}", mapping={
-        "status": "queued",
-        "progress": "0",
-        "result_url": "",
-        "error": "",
-    })
-    redis_client.expire(f"job:{job_id}", 86400)
+    key = f"job:{job_id}"
+    # Use pipeline with single-field hset calls — compatible with Redis 3.x+.
+    # hset(key, mapping={...}) requires Redis 4.0+ and fails on the Windows
+    # winget build (3.0.504).
+    pipe = redis_client.pipeline()
+    for field, value in {"status": "queued", "progress": "0",
+                         "result_url": "", "error": ""}.items():
+        pipe.hset(key, field, value)
+    pipe.expire(key, 86400)
+    pipe.execute()
 
-    # Count queue position
     queue_pos = redis_client.incr("queue:counter")
-    redis_client.hset(f"job:{job_id}", "queue_position", queue_pos)
+    redis_client.hset(key, "queue_position", queue_pos)
 
     task_fn.apply_async(args=[job_id, *args])
     return job_id

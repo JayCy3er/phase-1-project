@@ -25,8 +25,9 @@ def _get_pipe(model_dir: str):
 
     print(f"[LTXVideo] Loading LTX-Video from {model_path} on {device} ({dtype})...")
 
-    from diffusers import LTXImageToVideoPipeline
+    from diffusers import LTXImageToVideoPipeline, LTXPipeline
 
+    # 0.9.7-distilled uses LTXImageToVideoPipeline
     pipe = LTXImageToVideoPipeline.from_pretrained(
         model_path,
         torch_dtype      = dtype,

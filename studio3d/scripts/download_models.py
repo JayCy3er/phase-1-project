@@ -49,10 +49,10 @@ MODELS = {
         "tier":      "lite",
     },
     "ltx": {
-        "repo_id":   "Lightricks/LTX-Video",
+        "repo_id":   "Lightricks/LTX-Video-0.9.7-distilled",
         "local_dir": MODELS_DIR / "ltx",
         "gated":     False,
-        "size_gb":   10,
+        "size_gb":   6,
         "tier":      "both",
     },
 }

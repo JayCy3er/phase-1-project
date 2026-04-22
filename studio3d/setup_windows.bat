@@ -94,7 +94,7 @@ pip install ^
 echo.
 echo [7/7] Installing remaining dependencies ...
 pip install ^
-    "diffusers==0.30.3" ^
+    "diffusers==0.32.2" ^
     "transformers>=4.40.0" ^
     "accelerate>=0.30.0" ^
     "huggingface_hub>=0.23.0" ^

@@ -17,6 +17,21 @@ from ._device import device_str, is_directml
 _model_cache: dict = {}
 
 
+def _patch_perth():
+    """resemble-perth's C extension sometimes fails to bind on Windows,
+    leaving PerthImplicitWatermarker as None. Replace with a no-op so
+    chatterbox loads without crashing."""
+    try:
+        import perth
+        if perth.PerthImplicitWatermarker is None:
+            class _NoOp:
+                def apply_watermark(self, audio, sample_rate=None):
+                    return audio
+            perth.PerthImplicitWatermarker = _NoOp
+    except ImportError:
+        pass
+
+
 def _chatterbox_device() -> str:
     """
     Return device string for Chatterbox.
@@ -40,6 +55,7 @@ def _get_model(engine: str = "turbo"):
     if cache_key in _model_cache:
         return _model_cache[cache_key]
 
+    _patch_perth()
     device = _chatterbox_device()
     print(f"[Chatterbox] Loading {engine} model on {device}...")
 

@@ -47,12 +47,12 @@ OUTPUTS_DIR.mkdir(exist_ok=True)
 # ---------------------------------------------------------------------------
 def _set_status(job_id: str, status: str, progress: int = 0,
                 result_url: str = "", error: str = ""):
-    redis_client.hset(f"job:{job_id}", mapping={
-        "status":     status,
-        "progress":   str(progress),
-        "result_url": result_url,
-        "error":      error,
-    })
+    # Single-field hset calls — compatible with Redis 3.x on Windows.
+    pipe = redis_client.pipeline()
+    for field, value in {"status": status, "progress": str(progress),
+                         "result_url": result_url, "error": error}.items():
+        pipe.hset(f"job:{job_id}", field, value)
+    pipe.execute()
 
 
 def _job_output_dir(job_id: str) -> Path:

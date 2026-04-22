@@ -8,6 +8,7 @@ so we pass "cpu" when DirectML is the system default. Voice models are small
 enough that CPU inference is acceptable (~10s for a 5s clip).
 """
 import os
+import wave
 import torch
 import torchaudio as ta
 from pathlib import Path
@@ -102,6 +103,24 @@ def generate_voice(
 
     if language != "en" and engine != "multilingual":
         engine = "multilingual"
+
+    # Guard: chatterbox requires audio prompts >5 seconds; drop short/missing files
+    if voice_ref_path and os.path.exists(voice_ref_path):
+        try:
+            with wave.open(voice_ref_path) as wf:
+                dur = wf.getnframes() / wf.getframerate()
+            if dur < 5.1:
+                print(f"[Chatterbox] WARNING: voice ref {voice_ref_path!r} is only "
+                      f"{dur:.1f}s — must be >5s. Generating without voice cloning.")
+                voice_ref_path = None
+        except Exception as e:
+            print(f"[Chatterbox] WARNING: could not read voice ref ({e}). "
+                  "Generating without voice cloning.")
+            voice_ref_path = None
+    elif voice_ref_path and not os.path.exists(voice_ref_path):
+        print(f"[Chatterbox] WARNING: voice ref {voice_ref_path!r} not found. "
+              "Generating without voice cloning.")
+        voice_ref_path = None
 
     model = _get_model(engine)
 

@@ -33,11 +33,11 @@ if not errorlevel 1 (
 
 :: [2/4] Backend (FastAPI / uvicorn)
 echo [2/4] Starting Backend (uvicorn)...
-start "Studio3D - Backend" cmd /k "cd /d %~dp0backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+start "Studio3D - Backend" cmd /k "cd /d %~dp0backend && call %~dp0.venv\Scripts\activate.bat && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
 :: [3/4] Celery worker
 echo [3/4] Starting Celery worker...
-start "Studio3D - Celery" cmd /k "cd /d %~dp0backend && celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"
+start "Studio3D - Celery" cmd /k "cd /d %~dp0backend && call %~dp0.venv\Scripts\activate.bat && celery -A tasks worker --loglevel=info --concurrency=1 --pool=solo"
 
 :: [4/4] Frontend (Next.js)
 echo [4/4] Starting Frontend (Next.js)...

@@ -4,6 +4,13 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
+# diffusers 0.32.2 / transformers 5.x compatibility — must be before any diffusers import
+try:
+    from transformers.utils import FLAX_WEIGHTS_NAME as _  # noqa: F401
+except ImportError:
+    import transformers.utils as _tu
+    _tu.FLAX_WEIGHTS_NAME = "flax_model.msgpack"
+
 import redis
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware

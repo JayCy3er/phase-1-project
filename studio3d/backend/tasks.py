@@ -17,6 +17,16 @@ from pathlib import Path
 # Ensure backend/ is on the path so `from models.x import ...` always works
 sys.path.insert(0, str(Path(__file__).parent))
 
+# diffusers 0.32.2 imports FLAX_WEIGHTS_NAME from transformers.utils, which was
+# removed in transformers 5.x. Inject it into the already-loaded module namespace
+# before any diffusers import happens so the 'from transformers.utils import ...'
+# inside pipeline_loading_utils.py finds it without an ImportError.
+try:
+    from transformers.utils import FLAX_WEIGHTS_NAME as _  # noqa: F401
+except ImportError:
+    import transformers.utils as _tu
+    _tu.FLAX_WEIGHTS_NAME = "flax_model.msgpack"
+
 import redis
 from celery import Celery
 
